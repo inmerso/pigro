@@ -24,7 +24,7 @@
 
 `timescale 10ns / 1ns
 
-`include "opcodes.vh"
+`include "src/opcodes.vh"
 
 module ex_stage(
 		data_out, outopcode, overflow, error, destinationAddr, dAdd_ward, immediate_in, pcout, read_reset, fetch_flag, fetch_new_pc, oisimm, o_r_a,

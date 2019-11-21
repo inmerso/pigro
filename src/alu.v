@@ -25,7 +25,7 @@
 
 `timescale 10ns / 1ns
 
-`include "opcodes.vh"
+`include "src/opcodes.vh"
 
 `define ZERO 32'd0
 `define ONE  32'b11111111111111111111111111111111

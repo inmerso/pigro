@@ -25,7 +25,7 @@
 
 `timescale 10ns / 1ns
 
-`include "opcodes.vh"
+`include "src/opcodes.vh"
 
 
 module writeback(
