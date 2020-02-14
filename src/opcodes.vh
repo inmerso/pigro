@@ -12,7 +12,7 @@
 
     //--- opcode definitions	// hex
     // arithm & logic
-    `define NOP  5'b00000		// 0
+    `define NOP  5'b00000
     `define NOT  5'b00001
     `define AND  5'b00010
     `define OR   5'b00011
@@ -22,7 +22,7 @@
     `define NXOR 5'b00111
     `define LSH  5'b01000
     `define RSH  5'b01001
-    `define INC  5'b01010		// A
+    `define INC  5'b01010
     `define DEC  5'b01011
     `define ADD  5'b01100
     `define SUB  5'b01101
@@ -30,16 +30,18 @@
     `define	ROTL 5'b01111
     `define ROTR 5'b10000
     `define ALSH 5'b10001
-    `define ARSH 5'b10010		// 12 
+    `define ARSH 5'b10010
+    `define SQRT 5'b10011
     //branch
-    `define JMP  5'b10011	
-    `define CMP  5'b10100		// 14
-    `define BRQ  5'b10101
-    `define BRG  5'b10110
-    `define BRS  5'b10111
+    `define JMP  5'b11000	
+    `define CMP  5'b11001
+    `define BRQ  5'b11010
+    `define BRG  5'b11011
+    `define BRS  5'b11100
     //load & store
-    `define LDW  5'b11000
-    `define STR  5'b11001		// 19
+    `define LDW  5'b11101
+    `define STR  5'b11110
+    `define SQRT 5'b11111
 
     //--- Instruction partitioning
     `define INS_OP	31:27	// opcode
