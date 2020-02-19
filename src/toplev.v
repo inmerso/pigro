@@ -42,7 +42,7 @@ module toplev(
 	wire	[31:0]	instr_FE_RE;
 	wire	[3:0]	dAdd_EX_RE, dAdd_WB_RE, dAdd_RE_EX, dAdd_EX_ME,dAdd_ME_WB, dAdd_WB_RF, hazfrommem;
 	wire	[31:0]	data_a_RF_RE, data_b_RF_RE;
-	wire	[31:0]	data_a_RE_EX, data_b_RE_EX,o_data;
+	wire	[31:0]	data_a_RE_EX, data_b_RE_EX;
 	wire	[31:0]	immd_RE_EX, data_b_EX_ME;
 	wire	[4:0]	opcode_RE_EX,opcode_EX_ME,opcode_ME_WB;
 	wire	[1:0]	comp_RE_EX;
@@ -58,6 +58,7 @@ module toplev(
 	wire	[3:0]	sadd_RE_EX, load_dest;
 	wire 	[4:0]	bta_re_ex, bta_ex_fe;
 	wire			bubble,rst_read, imm_EX_ME;
+	wire [31:0] datao;
 	
 	// internal registers
 	reg 		rst;
@@ -68,7 +69,7 @@ module toplev(
 	
 	reg_file	rf0(
 				clk, we_WB_RF, dAdd_WB_RF, add_a_RE_RF, add_b_RE_RF, data_WB_RF,
-				data_a_RF_RE, data_b_RF_RE, o_data
+				data_a_RF_RE, data_b_RF_RE, datao
 			);
 
 	fetch	mfetch(
@@ -98,8 +99,8 @@ module toplev(
 				clk, rst, aluout_ME_WB, lmd_ME_WB, pc_ME_WB, dAdd_ME_WB, opcode_ME_WB, 
 				aluout_WB, lmdout_WB, data_WB_RF, opcode_WB, dAdd_WB_RF, pc_WB, we_WB_RF
 			);
-	
-	// processes
+
+
 	initial begin
 	
 		// Save the waveform in dump file

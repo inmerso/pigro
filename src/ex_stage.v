@@ -77,10 +77,11 @@ module ex_stage(
 	// wires
 	wire signed	[31:0]	data_out_alu;
 	wire				over,err;
+	wire				done;
 	wire 	[1:0]		cout;
 	
 	// --- modules
-	alu			alu0(data_a_i, data_b_i, opcode_i, enable_ALUi, data_out_alu, over, err);
+	alu			alu0(data_a_i, data_b_i, opcode_i, enable_ALUi, data_out_alu, over, err, done);
 	comparator	cmp0(data_a,data_b,cout);
 	// // the previous is equal to the following line
 	// comparator cmp0(.data_a(data_a_i), .data_b(data_b_i), .o(cout));
@@ -94,19 +95,19 @@ module ex_stage(
 	always @(data_out_alu) begin
 		if(enable_ALUi) data_out_i = data_out_alu;
 	end
-	always @(over) overflow_i = over;
-	always @(err) error_i = err;
-	always @(cout) compout <= cout;
-	always @(iPC)  pcout = iPC;
-	always @(opcode_i) outopcode = opcode_i;
-	always @(overflow_i) overflow = overflow_i;
-	always @(error_i) error = error_i;
-	always @(iread_reset) read_reset = iread_reset; 
-	always @(ifetch_flag) fetch_flag = ifetch_flag;
+	always @(over)          overflow_i = over;
+	always @(err)           error_i = err;
+	always @(cout)          compout <= cout;
+	always @(iPC)           pcout = iPC;
+	always @(opcode_i)      outopcode = opcode_i;
+	always @(overflow_i)    overflow = overflow_i;
+	always @(error_i)       error = error_i;
+	always @(iread_reset)   read_reset = iread_reset; 
+	always @(ifetch_flag)   fetch_flag = ifetch_flag;
 	always @(ifetch_new_pc) fetch_new_pc = ifetch_new_pc;
-	always @(iisimm) oisimm = iisimm;
-	always @(i_r_a)	o_r_a = i_r_a;
-	always @(idest_addr) destinationAddr = idest_addr;
+	always @(iisimm)        oisimm = iisimm;
+	always @(i_r_a)	        o_r_a = i_r_a;
+	always @(idest_addr)    destinationAddr = idest_addr;
 	
 	always @(posedge clk or rst) begin
 		if(rst == 1) begin
@@ -174,7 +175,8 @@ module ex_stage(
 				ifetch_flag = 0;
 				iread_reset = 0;
 			end
-		end else begin
+		end
+		else begin
 				iread_reset = 0;
 				ifetch_flag = 0;
 				ifetch_new_pc = 5'bz;
@@ -192,9 +194,9 @@ endmodule
 /*
 	comparator, gives comparison between data_a and data_b
 */
-module comparator(data_a, data_b, p);
+module comparator(data_a, data_b, result);
 	input	[31:0]	data_a, data_b;
-	output	[1:0]	p;
+	output	[1:0]	result;
 	
 	reg		[1:0]	o;
 	
@@ -204,8 +206,9 @@ module comparator(data_a, data_b, p);
 			if(data_a < data_b)
 				o = 2;
 			if(data_a == data_b)
-				o = 0;	
+				o = 0;
 	end
-	assign p = o;
+	
+	assign result = o;
 	
 endmodule

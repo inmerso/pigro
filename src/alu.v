@@ -28,18 +28,19 @@
 `include "src/opcodes.vh"
 
 `define ZERO 32'd0
-`define ONE  32'b11111111111111111111111111111111
+`define ONE  32'hFFFFFFFF
 
 
 module alu(
 	// input
 	data_a, data_b, opcode, enable,
 	//output
-	ALUout, overflow, error);
+	ALUout, overflow, error, done);
 
 	// --- output
 	output	[31:0]	ALUout;
 	output			overflow, error;
+	output	done;
 
 	// --- inputs
 	input	signed	[31:0]	data_a, data_b;
@@ -51,6 +52,7 @@ module alu(
 	reg		signed  [32:0]  iSum;		// bit conservation law
 	reg		signed	[63:0]	iProd;		
 	reg						error, overflow;
+	reg                     done;
 	reg		signed 	[31:0]	ALUout;
 	
 	
@@ -59,83 +61,96 @@ module alu(
 		if(enable == 1) begin
 			case(opcode)
 				
-				`NOP : begin // do nothin'
+				`NOP : begin
 						iALUout = 32'bz;
 						error = 0;
 						overflow = 0;
+						done = 1;
 					end
 				
 				`NOT : begin // data_a negation
 						iALUout = ~(data_a);
 						error = 0;
 						overflow = 0;
+						done = 1;
 					end
 				
 				`AND : begin // bitwise and
 						iALUout = data_a & data_b;
 						error = 0;
 						overflow = 0;
+						done = 1;
 					end
 
 				`OR  : begin // bitwise or
 						iALUout = data_a | data_b;
 						error = 0;
 						overflow = 0;
+						done = 1;
 					end
 
 				`XOR : begin // bitwise xor
 						iALUout = data_a ^ data_b;
 						error = 0;
 						overflow = 0;
+						done = 1;
 					end
 
 				`NAND : begin // bitwise nand
 						iALUout = ~(data_a & data_b);
 						error = 0;
 						overflow = 0;
+						done = 1;
 					end
 
 				`NOR  : begin // bitwise nor
 						iALUout = ~(data_a | data_b);
 						error = 0;
 						overflow = 0;
+						done = 1;
 					end
 
 				`NXOR : begin // bitwise nxor
 						iALUout = data_a ~^ data_b;
 						error = 0;
 						overflow = 0;
+						done = 1;
 					end					
 
 				`LSH : begin // left shift
 						iALUout = data_a << data_b;
 						error = 0;
 						overflow = 0;
+						done = 1;
 					end					
 					
 				`RSH : begin // right shift
 						iALUout = data_a >> data_b;
 						error = 0;
 						overflow = 0;
+						done = 1;
 					end					
 
 				`INC : begin // increment
 						iALUout = data_a + 1;
 						error = 0;
 						overflow = 0;
+						done = 1;
 					end					
 					
 				`DEC : begin // decrement
 						iALUout = data_a - 1;
 						error = 0;
 						overflow = 0;
+						done = 1;
 					end		
 					
 				`ADD : begin // adder
 						iSum = data_a + data_b;
 						iALUout = iSum[31:0];
 						overflow = iSum[32] ^ iSum[31];
-						error = 0; 
+						error = 0;
+						done = 1;
 					end		
 								
 				`SUB : begin // subtraction
@@ -143,6 +158,7 @@ module alu(
 						iALUout = iSum[31:0];
 						overflow = iSum[32] ^ iSum[31];
 						error = 0;
+						done = 1;
 					end	
 									
 				`MUL : begin // multiplication
@@ -151,30 +167,35 @@ module alu(
 						//check overflow calculation
 						overflow = ((iProd[63:32] != `ZERO) & (iProd[63:32] != `ONE)) | (iProd[32] ^ iProd[31]);
 						error = 0;
+						done = 1;
 					end		
 					
 				`ROTL : begin // rotate left by 1
 						iALUout = {data_a[30:0], data_a[31]};
 						error = 0;
 						overflow = 0;
+						done = 1;
 					end					
 					
 				`ROTR : begin // rotate right by 1 bit
 						iALUout = {data_a[0], data_a[31:1]};
 						error = 0;
 						overflow = 0;
+						done = 1;
 					end			
 
 				`ALSH : begin // arithmetic left shift
 						iALUout = data_a <<< data_b;
 						error = 0;
 						overflow = 0;
+						done = 1;
 					end					
 					
 				`ARSH : begin // arithmetic right shift
 						iALUout = data_a >>> data_b;
 						error = 0;
 						overflow = 0;
+						done = 1;
 					end							
 					
 				default: 
@@ -186,6 +207,7 @@ module alu(
 			ALUout		= 0;
 			overflow	= 0;
 			error		= 0;		// error -> validity
+			done        = 0;
 		end
 	end // process
 	

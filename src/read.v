@@ -27,15 +27,13 @@
 
 `include "src/opcodes.vh"
 
-// in case of reset simply put a NOP!
-
 module read(
 	//in	
 			clk, rst, instruction_in, pc_in,
 			data_a_RF, data_b_RF,
 			Daddr_fromEX, Daddr_fromWB,	Daddr_fromMEM,
 	// out		
-			data_a, data_b, immediate, dest_addr, opcode, pc, jump_flag, jump_displ, stall, isimmediate,
+			data_a, data_b, immediate, dest_addr, opcode, pc, jump_flag, jump_dest, stall, isimmediate,
 			addr_a_RF, addr_b_RF, o_addr_a, BTA
 	);
 	
@@ -50,7 +48,7 @@ module read(
 	output	signed 	[31:0]	immediate;			
 	output			[3:0]	dest_addr;			// destination address
 	output			[4:0]	opcode;				// output opcode
-	output			[4:0]	pc, jump_displ;
+	output			[4:0]	pc, jump_dest;
 	output					jump_flag;			// it's the if zero branch, goto fetch
 	output					stall;				// to insert bubbles -> `NOP
 	output					isimmediate;
@@ -64,7 +62,7 @@ module read(
 	reg signed	[31:0]	data_a, data_b, immediate;
 	reg			[3:0]	dest_addr;	
 	reg			[4:0]	opcode;
-	reg			[4:0]	pc, jump_displ;
+	reg			[4:0]	pc, jump_dest;
 	reg			[1:0]	comp;
 	reg					jump_flag;
 	reg					RAWHazard;
@@ -77,7 +75,7 @@ module read(
 	reg signed	[31:0]	data_a_i, data_b_i, immediate_i;
 	reg			[3:0]	dest_addr_i;	
 	reg			[4:0]	opcode_i;
-	reg			[4:0]	pc_i, jump_displ_i;
+	reg			[4:0]	pc_i, jump_dest_i;
 	reg					isimmediate_i;
 	
 	reg			[3:0]	Daddr_fromEX_i, Daddr_fromWB_i, Daddr_fromMEMi; 
@@ -92,8 +90,8 @@ module read(
 	reg		[17:0]	imminstr;
 	
 	// internal modules 
-	SignExtension	se0(imminstr, data_imm);
-	RAWDetector   	RAWd(instr_i[`INS_Ra], instr_i[`INS_Rb], Daddr_fromEX_i, Daddr_fromWB_i, Daddr_fromMEMi, RAW);
+	SignExtension se0(imminstr, data_imm);
+	RAWDetector   RAWd(instr_i[`INS_Ra], instr_i[`INS_Rb], Daddr_fromEX_i, Daddr_fromWB_i, Daddr_fromMEMi, RAW);
 	
 	
 	initial begin	instr_i = 32'b0; end	
@@ -114,7 +112,8 @@ module read(
 				instr_i 	= instruction_in;
 				pc_i		= pc_in;
 			end
-		end else begin
+		end
+		else begin
 			instr_i = `NOP;
 			pc_i <= 0;
 		end
@@ -141,7 +140,12 @@ module read(
 			end
 
 			dest_addr_i = instr_i[`INS_Rd];
-			isimmediate_i = instr_i[`IMM];
+			if (instr_i[`IMM]) begin
+				isimmediate_i = 1;
+			end 
+			else begin
+				isimmediate_i = 0;
+			end
 			imminstr 	= instr_i[`INS_IM];
 			o_addr_a 	= instr_i[`INS_Ra]; 
 			BTAi		= instr_i[`DISPL];
@@ -151,16 +155,16 @@ module read(
 				//feedback
 				jump_flag = 1;
 				if(isimmediate_i == 1) 
-					jump_displ_i = instr_i[`DISPL]; //BTAi;
+					jump_dest_i = instr_i[`DISPL];
 				else
-					jump_displ_i = pc_i + instr_i[`DISPL];
+					jump_dest_i = pc_i + instr_i[`DISPL];
 					
-				//flush the pipeline
+				// flush the pipeline
 				opcode_i	= `NOP;
 			end 
 			else begin
 				jump_flag = 0;
-				jump_displ_i = 5'bx;
+				jump_dest_i = 5'bx;
 				opcode_i = instr_i[`INS_OP];
 			end 
 		end
@@ -181,18 +185,20 @@ module read(
 		else 
 			immediate = 32'bx;
 	end
-	always @(dest_addr_i) dest_addr = dest_addr_i;
-	always @(pc_i)			pc = pc_i;
-	always @(jump_displ_i) jump_displ = jump_displ_i;
+	always @(dest_addr_i)   dest_addr = dest_addr_i;
+	always @(pc_i)          pc = pc_i;
+	always @(jump_dest_i)   jump_dest = jump_dest_i;
 	always @(isimmediate_i) isimmediate = isimmediate_i;
-	always @(BTAi)		BTA = BTAi;
+	always @(BTAi)          BTA = BTAi;
 	always @ (RAW_i ) begin
 		//if(opcode_i != `STR) 
 			stall = RAW_i;
 			// opcode = 0;
 	end
-	always @(negedge stall) opcode = opcode_i;
-	always @(posedge stall) opcode = 0;
+	always @(stall) begin
+		if (stall == 1) opcode = 0; else opcode = opcode_i;
+
+	end 
 endmodule 
 
 
@@ -203,7 +209,7 @@ module SignExtension(a, result);
 	input			[17:0] a; 		// 18-bit input 
 	output 	signed 	[31:0] result; 	// 32-bit output 
 	
-	assign result = { {14{a[17]}} , a};
+	assign result = { { 14{a[17]} }, a };
 endmodule 
 
 
