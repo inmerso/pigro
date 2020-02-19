@@ -18,4 +18,4 @@ and follow the instructions:
 The repository contains two script files to compile the design (compile.sh), and
 to simulate it (simulate.sh).
 The code it runs during simulation is contained in the pogram memory. 
-You can modify it (it's in the fetch.v file insude the prog_mem module). 
+You can modify it (it's in the fetch.v file inside the prog_mem module). 
