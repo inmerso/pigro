@@ -28,24 +28,20 @@
 
 module fetch(
     // inputs
-    clk, rst, jump_dest, jumpflag, branch_dest, taken, hazard,
+    clk, rst, jump_dest, jump_flag, branch_dest, branch_flag, hazard,
     //outputs
     oinstr, opc);
     
     input        clk;
     input        rst;
     input [4:0]  jump_dest;     // jump destination 
-    input        jumpflag;      // take the jump
+    input        jump_flag;     // take the jump
     input [4:0]  branch_dest;   // branch destination
-    input        taken;         // take the branch
+    input        branch_flag;   // take the branch
     input        hazard;
     
-    output [31:0] oinstr;       // fetched instruction
-    output [4:0]  opc;          // computed PC
-    
-    // internal register
-    reg  [31:0] oinstr;
-    reg  [4:0]  opc;
+    output reg [31:0] oinstr;   // fetched instruction
+    output reg [4:0]  opc;      // computed PC
     
     wire [`DATA_WIDTH-1:0] instr_PM;	
 
@@ -58,11 +54,11 @@ module fetch(
             oinstr <= 0;
         end
         else begin
-            if(jumpflag == 1) begin
+            if(jump_flag == 1) begin
                 opc <= jump_dest; // have to jump
             end
             else begin
-                if(taken == 1)
+                if(branch_flag == 1)
                     opc <= branch_dest; // branch taken
                 else
                     if(hazard == 0)

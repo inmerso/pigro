@@ -32,7 +32,7 @@ module ex_stage(
 	);
 
 	// --- outputs
-	output	signed	[31:0]	data_out;	// alu output
+	output reg	signed	[31:0]	data_out;	// alu output
 	output			[4:0]	outopcode;				// current opcode
 	output 					overflow,error;			// alu flags
 	output			[3:0]	destinationAddr;  		// destination address
@@ -61,7 +61,6 @@ module ex_stage(
 	reg				[4:0]	opcode_i, pcout;	
 	reg				[3:0]	destinationAddr, idest_addr, dAdd_ward;
 	reg				[4:0]	outopcode;
-	reg		signed  [31:0]	data_out;
 	reg						error,overflow;
 	reg						read_reset, fetch_flag;
 	reg				[4:0]	fetch_new_pc;
@@ -82,8 +81,8 @@ module ex_stage(
 	
 	// --- modules
 	alu			alu0(data_a_i, data_b_i, opcode_i, enable_ALUi, data_out_alu, over, err, done);
-	comparator	cmp0(data_a,data_b,cout);
-	// // the previous is equal to the following line
+	comparator	cmp0(data_a, data_b, cout);
+	// the previous is equal to the following line
 	// comparator cmp0(.data_a(data_a_i), .data_b(data_b_i), .o(cout));
 	
 	initial begin 

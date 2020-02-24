@@ -32,188 +32,188 @@
 
 
 module alu(
-	// input
-	data_a, data_b, opcode, enable,
-	//output
-	ALUout, overflow, error, done);
+    // input
+    data_a, data_b, opcode, enable,
+    //output
+    ALUout, overflow, error, done);
 
-	// --- output
-	output	[31:0]	ALUout;
-	output			overflow, error;
-	output	done;
+    // --- output
+    output     [31:0] ALUout;
+    output reg        overflow;
+    output reg        error;
+    output reg        done;
 
-	// --- inputs
-	input	signed	[31:0]	data_a, data_b;
-	input			[4:0]	opcode;
-	input					enable;
+    // --- inputs
+    input signed [31:0] data_a;
+    input signed [31:0] data_b;
+    input         [4:0] opcode;
+    input               enable;
 
-	// --- internal
-	reg		signed	[31:0]	iALUout;
-	reg		signed  [32:0]  iSum;		// bit conservation law
-	reg		signed	[63:0]	iProd;		
-	reg						error, overflow;
-	reg                     done;
-	reg		signed 	[31:0]	ALUout;
-	
-	
-	// --- processes
-	always @(data_a or data_b or enable or opcode) begin
-		if(enable == 1) begin
-			case(opcode)
-				
-				`NOP : begin
-						iALUout = 32'bz;
-						error = 0;
-						overflow = 0;
-						done = 1;
-					end
-				
-				`NOT : begin // data_a negation
-						iALUout = ~(data_a);
-						error = 0;
-						overflow = 0;
-						done = 1;
-					end
-				
-				`AND : begin // bitwise and
-						iALUout = data_a & data_b;
-						error = 0;
-						overflow = 0;
-						done = 1;
-					end
+    // --- internal
+    reg signed [31:0] iALUout;
+    reg signed [32:0] iSum; // bit conservation law
+    reg signed [63:0] iProd;
+    reg signed [31:0] ALUout;
 
-				`OR  : begin // bitwise or
-						iALUout = data_a | data_b;
-						error = 0;
-						overflow = 0;
-						done = 1;
-					end
 
-				`XOR : begin // bitwise xor
-						iALUout = data_a ^ data_b;
-						error = 0;
-						overflow = 0;
-						done = 1;
-					end
+    // --- processes
+    always @(data_a or data_b or enable or opcode) begin
+        if(enable == 1) begin
+            case(opcode)
 
-				`NAND : begin // bitwise nand
-						iALUout = ~(data_a & data_b);
-						error = 0;
-						overflow = 0;
-						done = 1;
-					end
+                `NOP : begin
+                        iALUout = 32'bz;
+                        error = 0;
+                        overflow = 0;
+                        done = 1;
+                    end
 
-				`NOR  : begin // bitwise nor
-						iALUout = ~(data_a | data_b);
-						error = 0;
-						overflow = 0;
-						done = 1;
-					end
+                `NOT : begin // data_a negation
+                        iALUout = ~(data_a);
+                        error = 0;
+                        overflow = 0;
+                        done = 1;
+                    end
 
-				`NXOR : begin // bitwise nxor
-						iALUout = data_a ~^ data_b;
-						error = 0;
-						overflow = 0;
-						done = 1;
-					end					
+                `AND : begin // bitwise and
+                        iALUout = data_a & data_b;
+                        error = 0;
+                        overflow = 0;
+                        done = 1;
+                    end
 
-				`LSH : begin // left shift
-						iALUout = data_a << data_b;
-						error = 0;
-						overflow = 0;
-						done = 1;
-					end					
-					
-				`RSH : begin // right shift
-						iALUout = data_a >> data_b;
-						error = 0;
-						overflow = 0;
-						done = 1;
-					end					
+                `OR  : begin // bitwise or
+                        iALUout = data_a | data_b;
+                        error = 0;
+                        overflow = 0;
+                        done = 1;
+                    end
 
-				`INC : begin // increment
-						iALUout = data_a + 1;
-						error = 0;
-						overflow = 0;
-						done = 1;
-					end					
-					
-				`DEC : begin // decrement
-						iALUout = data_a - 1;
-						error = 0;
-						overflow = 0;
-						done = 1;
-					end		
-					
-				`ADD : begin // adder
-						iSum = data_a + data_b;
-						iALUout = iSum[31:0];
-						overflow = iSum[32] ^ iSum[31];
-						error = 0;
-						done = 1;
-					end		
-								
-				`SUB : begin // subtraction
-						iSum = data_a - data_b;
-						iALUout = iSum[31:0];
-						overflow = iSum[32] ^ iSum[31];
-						error = 0;
-						done = 1;
-					end	
-									
-				`MUL : begin // multiplication
-						iProd = data_a * data_b;
-						iALUout = iProd[31:0];
-						//check overflow calculation
-						overflow = ((iProd[63:32] != `ZERO) & (iProd[63:32] != `ONE)) | (iProd[32] ^ iProd[31]);
-						error = 0;
-						done = 1;
-					end		
-					
-				`ROTL : begin // rotate left by 1
-						iALUout = {data_a[30:0], data_a[31]};
-						error = 0;
-						overflow = 0;
-						done = 1;
-					end					
-					
-				`ROTR : begin // rotate right by 1 bit
-						iALUout = {data_a[0], data_a[31:1]};
-						error = 0;
-						overflow = 0;
-						done = 1;
-					end			
+                `XOR : begin // bitwise xor
+                        iALUout = data_a ^ data_b;
+                        error = 0;
+                        overflow = 0;
+                        done = 1;
+                    end
 
-				`ALSH : begin // arithmetic left shift
-						iALUout = data_a <<< data_b;
-						error = 0;
-						overflow = 0;
-						done = 1;
-					end					
-					
-				`ARSH : begin // arithmetic right shift
-						iALUout = data_a >>> data_b;
-						error = 0;
-						overflow = 0;
-						done = 1;
-					end							
-					
-				default: 
-					// if not comtemplated it's an error in opcode, set the flag
-					error = 1;	
-			endcase
-		end
-		else begin // disabled ALU
-			ALUout		= 0;
-			overflow	= 0;
-			error		= 0;		// error -> validity
-			done        = 0;
-		end
-	end // process
-	
-	// pass result to output
-	always @(iALUout) begin
-		ALUout <= iALUout;
-	end
-	
+                `NAND : begin // bitwise nand
+                        iALUout = ~(data_a & data_b);
+                        error = 0;
+                        overflow = 0;
+                        done = 1;
+                    end
+
+                `NOR  : begin // bitwise nor
+                        iALUout = ~(data_a | data_b);
+                        error = 0;
+                        overflow = 0;
+                        done = 1;
+                    end
+
+                `NXOR : begin // bitwise nxor
+                        iALUout = data_a ~^ data_b;
+                        error = 0;
+                        overflow = 0;
+                        done = 1;
+                    end
+
+                `LSH : begin // left shift
+                        iALUout = data_a << data_b;
+                        error = 0;
+                        overflow = 0;
+                        done = 1;
+                    end
+
+                `RSH : begin // right shift
+                        iALUout = data_a >> data_b;
+                        error = 0;
+                        overflow = 0;
+                        done = 1;
+                    end
+
+                `INC : begin // increment
+                        iALUout = data_a + 1;
+                        error = 0;
+                        overflow = 0;
+                        done = 1;
+                    end
+
+                `DEC : begin // decrement
+                        iALUout = data_a - 1;
+                        error = 0;
+                        overflow = 0;
+                        done = 1;
+                    end
+
+                `ADD : begin // adder
+                        iSum = data_a + data_b;
+                        iALUout = iSum[31:0];
+                        overflow = iSum[32] ^ iSum[31];
+                        error = 0;
+                        done = 1;
+                    end
+
+                `SUB : begin // subtraction
+                        iSum = data_a - data_b;
+                        iALUout = iSum[31:0];
+                        overflow = iSum[32] ^ iSum[31];
+                        error = 0;
+                        done = 1;
+                    end
+
+                `MUL : begin // multiplication
+                        iProd = data_a * data_b;
+                        iALUout = iProd[31:0];
+                        //check overflow calculation
+                        overflow = ((iProd[63:32] != `ZERO) & (iProd[63:32] != `ONE)) | (iProd[32] ^ iProd[31]);
+                        error = 0;
+                        done = 1;
+                    end
+
+                `ROTL : begin // rotate left by 1
+                        iALUout = {data_a[30:0], data_a[31]};
+                        error = 0;
+                        overflow = 0;
+                        done = 1;
+                    end
+
+                `ROTR : begin // rotate right by 1 bit
+                        iALUout = {data_a[0], data_a[31:1]};
+                        error = 0;
+                        overflow = 0;
+                        done = 1;
+                    end
+
+                `ALSH : begin // arithmetic left shift
+                        iALUout = data_a <<< data_b;
+                        error = 0;
+                        overflow = 0;
+                        done = 1;
+                    end
+
+                `ARSH : begin // arithmetic right shift
+                        iALUout = data_a >>> data_b;
+                        error = 0;
+                        overflow = 0;
+                        done = 1;
+                    end
+
+                default: 
+                    // if not comtemplated it's an error in opcode, set the flag
+                    error = 1;	
+            endcase
+        end
+        else begin // disabled ALU
+            ALUout      = 0;
+            overflow    = 0;
+            error       = 0;
+            done        = 0;
+        end
+    end // process
+
+    // pass result to output
+    always @(iALUout) begin
+        ALUout <= iALUout;
+    end
+
 endmodule // alu

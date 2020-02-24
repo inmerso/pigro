@@ -25,35 +25,34 @@
 `timescale 10ns / 1ns
 
 module data_mem(
-		tbw_data,clk,dest_addr,source_add,wrtEnable,
-		outdata
-	);
-	
-	input	signed	[31:0]	tbw_data;
-	input					clk,
-							wrtEnable;
-	input			[3:0]	dest_addr;
-	input			[3:0]	source_add;
-	
-	output	signed	[31:0]	outdata;
-	
-	reg		[31:0]	mem[31:0];		// 32 location of 32bit space
-	reg		[5:0]	i;
-	
-	reg	signed [31:0] itbw_data;
-	
-	initial begin	
-		for(i=0; i<32; i = i+1)
-			mem[i] = i;
-	end
-	
-	// WRITE
-	always @ (posedge clk) begin
-		if(wrtEnable == 1)
-			mem[dest_addr] <= tbw_data;
-	end
+        tbw_data, clk, dest_addr, source_add, wrtEnable,
+        outdata
+    );
+    
+    input signed  [31:0] tbw_data;
+    input                clk;
+    input                wrtEnable;
+    input         [3:0]  dest_addr;
+    input         [3:0]  source_add;
 
-	// READ
-	assign outdata = mem[source_add];
-	
+    output signed [31:0] outdata;
+
+    reg [31:0] mem[31:0];  // 32 location of 32bit space
+
+
+    integer i;
+    initial begin	
+        for(i=0; i<32; i = i+1)
+            mem[i] = i;
+    end
+    
+    // WRITE
+    always @ (posedge clk) begin
+        if(wrtEnable == 1)
+            mem[dest_addr] <= tbw_data;
+    end
+
+    // READ
+    assign outdata = mem[source_add];
+    
 endmodule

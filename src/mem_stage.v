@@ -29,7 +29,7 @@
 
 module mem_stage( clk,rst,
 			aluout, destinationAddress, pc, opcode, isimm, mem_source,
-			pc_out,LMD,outaluout,opcode_out,destAddr_out, omem_source
+			pc_out, LMD, outaluout, opcode_out, destAddr_out, omem_source
 		);
 
 	input					clk,rst;				
@@ -40,34 +40,30 @@ module mem_stage( clk,rst,
 	input					isimm;
 	input			[3:0]	mem_source;				// for load only
 	
-	output			[4:0]	pc_out;					// forwardin' PC 
-	output	signed	[31:0]	LMD;					// load memory data → contains value read from memory and has to be put into register in next stage 
-	output	signed	[31:0]	outaluout;				// output aluout 
-	output			[4:0]	opcode_out;				// ouput opcode
-	output			[3:0]	destAddr_out;			// output dest_addr
-	output			[3:0]	omem_source;
+	output	reg 	[4:0]	pc_out;					// forwardin' PC 
+	output	reg signed	[31:0]	LMD;					// load memory data → contains value read from memory and has to be put into register in next stage 
+	output	reg signed	[31:0]	outaluout;				// output aluout 
+	output	reg		[4:0]	opcode_out;				// ouput opcode
+	output	reg		[3:0]	destAddr_out;			// output dest_addr
+	output	reg		[3:0]	omem_source;
 	
-	reg				[4:0] 	opcode_i, opcode_out;
-	reg		signed  [31:0]	aluout_i, outaluout;
-	reg		signed  [31:0]	LMD, iLMD;
+	reg				[4:0] 	opcode_i;
+	reg		signed  [31:0]	aluout_i;
+	reg		signed  [31:0]	iLMD;
 	reg				[3:0]	destAddr_out_i;
-	
 	reg	signed		[31:0]	tbw_data, itbw_data;
-	reg				[3:0]	destAddr_out;
 	reg						wrtEnable,wre_i;
 	reg				[3:0]	dest_addr;
-	reg				[4:0]	iPC, pc_out;
+	reg				[4:0]	iPC;
 	reg						iisimm;
-	reg				[3:0]	omem_source, imem_source;
-	
-
+	reg				[3:0]	imem_source;
 	reg	signed		[31:0]  datatomem, routdata;
+
 	wire signed		[31:0]	outdata;
-	
 	
 	data_mem		dm(tbw_data, clk, dest_addr, imem_source, wrtEnable, outdata);
 	
-	
+
 	always@(outdata) routdata = outdata;	
 
 	always @(posedge clk) begin

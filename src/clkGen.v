@@ -26,13 +26,13 @@
 `timescale 10ns / 1ns
 
 module clkGen(clock);
-	output  clock;
-	reg		clock;
-	
-	initial
-		#5 clock = 1;
-	
-	always
-		#50 clock = ~clock;
-		
+    output clock;
+    reg    clock;
+
+    initial
+        #5 clock = 1;
+
+    always
+        #50 clock = ~clock;
+
 endmodule
